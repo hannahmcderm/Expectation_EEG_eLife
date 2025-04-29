@@ -1,3 +1,5 @@
+% analysis of behavioural data 
+
 exgaussdir = 'C:\Users\admin\Documents\MATLAB\bramzandbelt-exgauss-7cf8c4c';
 addpath(exgaussdir)
 
@@ -117,3 +119,36 @@ ylabel('Reaction Time (s)');
 ylim([0.0 1.2]);
 title('Reaction Times across Conditions');
 hold off
+
+% correlate neural effects with behavioural effect
+
+
+% validity effect for sharpening and dampening are taken from the
+% decoding_plots_SVM_quarters.m file
+
+validity_effect_damp = validity_effect_damp(10:end);
+validity_effect_sharp = validity_effect_sharp(10:end);
+
+data_matrix = [validity_effect_beh, validity_effect_sharp, validity_effect_damp];
+
+correlation_matrix = corr(data_matrix)
+
+[r1, p1] = corr(validity_effect_beh, validity_effect_damp);
+[r2, p2] = corr(validity_effect_beh, validity_effect_sharp);
+[r3, p3] = corr(validity_effect_damp, validity_effect_sharp);
+
+% Calculate t-statistics and p-values
+n = length(validity_effect_beh);  % Number of data points
+
+t_stat1 = r1 * sqrt(n - 2) / sqrt(1 - r1^2);
+t_stat2 = r2 * sqrt(n - 2) / sqrt(1 - r2^2);
+t_stat3 = r3 * sqrt(n - 2) / sqrt(1 - r3^2);
+
+p_value1 = 2 * (1 - tcdf(abs(t_stat1), n - 2));  % Two-tailed test
+p_value2 = 2 * (1 - tcdf(abs(t_stat2), n - 2));
+p_value3 = 2 * (1 - tcdf(abs(t_stat3), n - 2));
+
+% Display results
+disp(['Correlation between validity_effect_behavioural and validity_effect_dampening: r = ', num2str(r1), ', p-value = ', num2str(p_value1)])
+disp(['Correlation between validity_effect_behavioural and validity_effect_sharpening: r = ', num2str(r2), ', p-value = ', num2str(p_value2)])
+disp(['Correlation between validity_effect_dampening and validity_effect_sharpening: r = ', num2str(r3), ', p-value = ', num2str(p_value3)])
